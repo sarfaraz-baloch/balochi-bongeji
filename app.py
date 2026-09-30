@@ -1,7 +1,8 @@
 import os # for file paths
-import tkinter as tk  # for UI elements and event handling
+import tkinter as tk # for UI elements and event handling
 from tkinter import messagebox # for message boxes and error handling
 from PIL import Image, ImageTk # for image handling and display
+
 
 # "Python, try to run this code."
 try:
@@ -16,13 +17,25 @@ except ImportError: # If the library is not available
 
 
 # --- FILE PATHS --- replace with your own paths
-IMAGE_DIR = r"C:\Users\HP G8\Desktop\Balochi\images\renamed_images"
-AUDIO_DIR = r"C:\Users\HP G8\Desktop\Balochi\audio"
+# IMAGE_DIR = r"C:\Users\HP G8\Desktop\Balochi\images\renamed_images"
+# AUDIO_DIR = r"C:\Users\HP G8\Desktop\Balochi\audio"
 
+IMAGE_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "images",
+    "renamed_images"
+)
+
+AUDIO_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "audio"
+)
 
 
 # --- BASE CLASS --- Every Balochi letter should have some information.
+
 class AlphabetItem:
+
     """Base class for Balochi letters"""
     def __init__(self, name, sound, example, image_index):
         self.name = name
@@ -32,6 +45,7 @@ class AlphabetItem:
         self.image_path = os.path.join(
             IMAGE_DIR, f"image_{image_index:02d}.jpg"
         )
+        
         # This creates the complete audio filename.
         self.audio_path = os.path.join(
             AUDIO_DIR, f"sound_{image_index:02d}.wav.mp4"
@@ -44,6 +58,7 @@ class AlphabetItem:
 # Each letter has a name, a sound, an example, and an image index
 
 ALL_LETTERS = [
+    # objects
     AlphabetItem("A", "Short A sound", "Anár (Pomegranate)", 1),
     AlphabetItem("Á", "Long A sound", "Ázmán (sky)", 2),
     AlphabetItem("B", "B sound", "Báli (Airplane)", 3),
@@ -80,6 +95,7 @@ ALL_LETTERS = [
 # The function returns a list of AlphabetItem objects.
 # Go through every letter in ALL_LETTERS and keep only the letters whose name exists in names_list.
 # This function helps to create different categories.
+
 def filter_by_names(names_list):
     return [item for item in ALL_LETTERS if item.name in names_list]
 
@@ -87,7 +103,7 @@ def filter_by_names(names_list):
 # This is a dictionary.
 # It stores different groups of letters.
 CATEGORIES = {
-    "1. Balóchiay Áb": ("Balóchiay Áb", ALL_LETTERS),
+    "Balóchiay Áb": ("Balóchiay Áb", ALL_LETTERS),
     "2. Balóchiay Jwánáb": (
         "Balóchiay Jwánáb",
         filter_by_names(
@@ -135,11 +151,12 @@ CATEGORIES = {
 
 # This is the main class.
 # The BalochiApp object controls the whole GUI.
-class BalochiApp:
 
+class BalochiApp:
     # This is the constructor. 
     # It takes the root window as an argument.
     # The root window is the main window of the GUI.
+
     def __init__(self, root):
         self.root = root # The root window
         self.root.title("Balochi Bongéji - Studio Edition") # The title of the root window
@@ -148,12 +165,11 @@ class BalochiApp:
         self.root.config(bg="#0f172a") # The background color of the root window
 
         # Current Category
-        self.current_cat_key = "1. Balóchiay Áb" # The key of the current category
+        self.current_cat_key = "Balóchiay Áb" # The key of the current category
         self.current_list = CATEGORIES[self.current_cat_key][1] # The list of the current category
         self.current_index = 0 # The index of the current item in the current list
+        self.player = None # The audio player # Background Audio Engine
 
-        # Background Audio Engine
-        self.player = None # The audio player
         if HAS_WIN32COM: # If the audio player is available 
             try: # Try to create the audio player
 
@@ -167,6 +183,7 @@ class BalochiApp:
         # UI Elements
         # This dictionary will store your category buttons.
         self.sidebar_buttons = {}
+
         # This is a list. 
         # This list will store letter buttons.
         self.grid_buttons = []
@@ -181,19 +198,25 @@ class BalochiApp:
     # This method creates the complete interface.
     # It creates the UI elements.
     def setup_ui(self):
+        
         # Master Layout: Left Sidebar + Main Studio
+        
         self.sidebar = tk.Frame(self.root, bg="#1e293b", width=240)
         self.sidebar.pack(side=tk.LEFT, fill=tk.Y)
         self.sidebar.pack_propagate(False)
-
+        
+        # Main Studio Layout
         self.studio = tk.Frame(self.root, bg="#0f172a")
         self.studio.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         # --- SIDEBAR UI ---
         # App Brand Header
+
+        # tk.frame is a container for widgets
         brand_frame = tk.Frame(self.sidebar, bg="#1e293b", pady=20, padx=15)
         brand_frame.pack(fill=tk.X)
 
+        # Labe is a widget that displays text on the screen
         tk.Label(
             brand_frame,
             text="بلوچی بنگیجی",
@@ -210,6 +233,7 @@ class BalochiApp:
             bg="#1e293b",
         ).pack(anchor="w", pady=(2, 0))
 
+        # tk.frame is a container
         tk.Frame(self.sidebar, bg="#334155", height=1).pack(
             fill=tk.X, padx=15, pady=5
         )
@@ -420,6 +444,7 @@ class BalochiApp:
             self.grid_buttons.append(btn)
 
     # --- SIDEBAR BUTTONS ---
+
     def update_sidebar_styles(self):
         for key, btn in self.sidebar_buttons.items():
             if key == self.current_cat_key:
